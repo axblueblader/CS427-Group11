@@ -5,9 +5,11 @@ using UnityEngine;
 
 public class CharacterMovement : MonoBehaviour
 {
-    public float speed = 20F;
-    public float jumpSpeed = 200F;
-    public float maxVelocity = 2.3F;
+    public float speed = 30F;
+    public float jumpSpeed = 400F;
+    public float maxVelocityX = 2.3F;
+    public float maxVelocityY = 4F;
+    public float minVelocityXAsRun = 0.5F;
     private Animator animator;
     private Rigidbody2D rb;
     private bool disableMovement;
@@ -37,25 +39,35 @@ public class CharacterMovement : MonoBehaviour
                 GetComponent<SpriteRenderer>().flipX = false;
             }
 
-            if (Input.GetKeyDown(KeyCode.Space))
+            // Space pressed and not moving up or down
+            if (Input.GetKeyDown(KeyCode.Space) && Math.Abs(rb.velocity.y) == 0)
             {
                 rb.AddForce(new Vector2(0, jumpSpeed));
             }
 
             SetCharState();
-            if (Math.Abs(rb.velocity.x) > maxVelocity)
-            {
-                rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxVelocity);
-            }
+            LimitCharVelocity();
         }
 
         
     }
 
+    void LimitCharVelocity()
+    {
+        if (Math.Abs(rb.velocity.x) > maxVelocityX)
+        {
+            rb.velocity = new Vector2(maxVelocityX * Math.Sign(rb.velocity.x), rb.velocity.y);
+        }
+
+        if (Math.Abs(rb.velocity.y) > maxVelocityY)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, maxVelocityY * Math.Sign(rb.velocity.y));
+        }
+    }
     void SetCharState()
     {
-        //Debug.Log(rb.velocity.x);
-        if (Math.Abs(rb.velocity.x) >= 0.3F)
+        //Debug.Log(rb.velocity.y);
+        if (Math.Abs(rb.velocity.x) >= minVelocityXAsRun)
         {
             animator.SetBool("isRunning", true);
         } else
@@ -66,7 +78,7 @@ public class CharacterMovement : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.collider.gameObject.tag == "FatalObj")
+        if (collision.collider.gameObject.tag == "FatalObj" && collision.otherCollider.gameObject.tag == "Player")
         {
             animator.SetTrigger("Dying");
             disableMovement = true;

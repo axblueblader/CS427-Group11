@@ -916,8 +916,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 30
-  jumpSpeed: 200
-  maxVelocity: 2.3
+  jumpSpeed: 400
+  maxVelocityX: 2.3
+  maxVelocityY: 4
+  minVelocityXAsRun: 0.5
 --- !u!95 &1426940968
 Animator:
   serializedVersion: 3
